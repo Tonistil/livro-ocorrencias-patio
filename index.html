@@ -241,8 +241,8 @@ const { data: plantoes, error: erroPlantoes } = await supabase
   .eq('ativo', true)
   .order('numero');
 
-if (erroPlantoes) {
-  alert('Erro ao carregar plantões: ' + erroPlantoes.message);
+if (!plantoes || plantoes.length === 0) {
+  alert('Nenhum plantão ativo disponível.');
   return;
 }
 
