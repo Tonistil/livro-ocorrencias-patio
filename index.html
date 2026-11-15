@@ -257,9 +257,39 @@ plantoes.forEach(item => {
   document.getElementById('voltar').addEventListener('click', mostrarPainel);
 
   document.getElementById('formOcorrencia').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    alert('O formulário está pronto. A gravação no banco será configurada na próxima etapa.');
-  });
+  event.preventDefault();
+
+  const botao = event.currentTarget.querySelector('button[type="submit"]');
+  botao.disabled = true;
+  botao.textContent = 'Salvando...';
+
+  const plantao_id = document.getElementById('plantao').value;
+  const categoria_id = document.getElementById('categoria').value;
+  const descricao = document.getElementById('descricao').value.trim();
+  const observacao = document.getElementById('observacao').value.trim();
+
+  const { error } = await supabase
+    .from('ocorrencias')
+    .insert({
+      plantao_id: plantao_id,
+      categoria_id: categoria_id,
+      usuario_id: perfil.id,
+      descricao: descricao,
+      observacao: observacao,
+      area: 'Portaria'
+    });
+
+  botao.disabled = false;
+  botao.textContent = 'Salvar ocorrência';
+
+  if (error) {
+    alert('Erro ao salvar ocorrência: ' + error.message);
+    return;
+  }
+
+  alert('Ocorrência registrada com sucesso!');
+  event.currentTarget.reset();
+});  });
     }
     
 });
