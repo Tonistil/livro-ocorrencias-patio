@@ -253,7 +253,109 @@ plantoes.forEach(item => {
   opcao.value = item.id;
   opcao.textContent = item.nome || `Plantão ${item.numero}`;
   campoPlantao.appendChild(opcao);
-});    
+});    const { data: usuarioAtual, error: erroUsuario } = await supabase.auth.getUser();
+
+if (erroUsuario || !usuarioAtual.user) {
+  alert('Não foi possível identificar o funcionário conectado.');
+  return;
+}
+
+const { data: perfil, error: erroPerfil } = await supabase
+  .from('perfis')
+  .select('id')
+  .eq('auth_user_id', usuarioAtual.user.id)
+  .eq('ativo', true)
+  .single();
+
+if (erroPerfil || !perfil) {
+  alert('Erro ao localizar o perfil do funcionário.');
+  return;
+}
+
+const { data: vinculos, error: erroVinculos } = await supabase
+  .from('plantao_usuarios')
+  .select('plantao_id')
+  .eq('usuario_id', perfil.id)
+  .eq('ativo', true);
+
+if (erroVinculos || !vinculos || vinculos.length === 0) {
+  alert('Nenhum plantão ativo encontrado para este funcionário.');
+  return;
+}
+
+const idsPlantoes = vinculos.map(item => item.plantao_id);
+
+const { data: plantoes, error: erroPlantoes } = await supabase
+  .from('plantoes')
+  .select('id, numero, nome')
+  .in('id', idsPlantoes)
+  .eq('ativo', true)
+  .order('numero');
+
+if (erroPlantoes) {
+  alert('Erro ao carregar plantões: ' + erroPlantoes.message);
+  return;
+}
+
+const campoPlantao = document.getElementById('plantao');
+
+plantoes.forEach(item => {
+  const opcao = document.createElement('option');
+  opcao.value = item.id;
+  opcao.textContent = item.nome || `Plantão ${item.numero}`;
+  campoPlantao.appendChild(opcao);
+});const { data: usuarioAtual, error: erroUsuario } = await supabase.auth.getUser();
+
+if (erroUsuario || !usuarioAtual.user) {
+  alert('Não foi possível identificar o funcionário conectado.');
+  return;
+}
+
+const { data: perfil, error: erroPerfil } = await supabase
+  .from('perfis')
+  .select('id')
+  .eq('auth_user_id', usuarioAtual.user.id)
+  .eq('ativo', true)
+  .single();
+
+if (erroPerfil || !perfil) {
+  alert('Erro ao localizar o perfil do funcionário.');
+  return;
+}
+
+const { data: vinculos, error: erroVinculos } = await supabase
+  .from('plantao_usuarios')
+  .select('plantao_id')
+  .eq('usuario_id', perfil.id)
+  .eq('ativo', true);
+
+if (erroVinculos || !vinculos || vinculos.length === 0) {
+  alert('Nenhum plantão ativo encontrado para este funcionário.');
+  return;
+}
+
+const idsPlantoes = vinculos.map(item => item.plantao_id);
+
+const { data: plantoes, error: erroPlantoes } = await supabase
+  .from('plantoes')
+  .select('id, numero, nome')
+  .in('id', idsPlantoes)
+  .eq('ativo', true)
+  .order('numero');
+
+if (erroPlantoes) {
+  alert('Erro ao carregar plantões: ' + erroPlantoes.message);
+  return;
+}
+
+const campoPlantao = document.getElementById('plantao');
+
+plantoes.forEach(item => {
+  const opcao = document.createElement('option');
+  opcao.value = item.id;
+  opcao.textContent = item.nome || `Plantão ${item.numero}`;
+  campoPlantao.appendChild(opcao);
+});
   document.getElementById('voltar').addEventListener('click', mostrarPainel);
 
   document.getElementById('formOcorrencia').addEventListener('submit', (event) => {
