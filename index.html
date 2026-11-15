@@ -324,16 +324,16 @@ const nomesUsuarios = new Map(
   });
 }
 
-filtroPlantao.addEventListener('change', renderizarOcorrencias);
 filtroCategoria.addEventListener('change', renderizarOcorrencias);
 
-renderizarOcorrencias();
-}
 document.getElementById('limparFiltros').addEventListener('click', () => {
   filtroPlantao.value = '';
   filtroCategoria.value = '';
   renderizarOcorrencias();
 });
+
+renderizarOcorrencias();
+}
 
 async function mostrarFormulario() {
   document.querySelector('.login').innerHTML = `
