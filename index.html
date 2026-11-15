@@ -254,7 +254,9 @@ plantoes.forEach(item => {
   opcao.textContent = item.nome || `Plantão ${item.numero}`;
   campoPlantao.appendChild(opcao);
 });
-  document.getElementById('voltar').addEventListener('click', mostrarPainel);
+  document.getElementById('voltar').addEventListener('click', () => {
+  mostrarPainel();
+});
 
   document.getElementById('formOcorrencia').addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -287,9 +289,10 @@ plantoes.forEach(item => {
     return;
   }
 
-  alert('Ocorrência registrada com sucesso!');
-  event.currentTarget.reset();
+    alert('Ocorrência registrada com sucesso!');
+  document.getElementById('formOcorrencia').reset();
 });
+    }
 </script>
 </body>
 </html>
