@@ -94,11 +94,43 @@
   </main>
 
   <script>
-    document.getElementById("loginForm")
-      .addEventListener("submit", function(event) {
-        event.preventDefault();
-        alert("Tela criada! A autenticação será conectada na próxima etapa.");
-      });
+    
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://bxtjucnnfuloalgtayts.supabase.co';
+
+const SUPABASE_KEY = 'sb_publishable_GR2xfNu-eekN_Hi9TFWc5w_7UoSRjFn';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.getElementById('loginForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
+
+  const matricula = document.getElementById('matricula').value.trim().toLowerCase();
+  const senha = document.getElementById('senha').value;
+
+  const email = matricula + '@patiojardins.com';
+
+  const botao = this.querySelector('button');
+  botao.disabled = true;
+  botao.textContent = 'Entrando...';
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email,
+    password: senha
+  });
+
+  botao.disabled = false;
+  botao.textContent = 'Entrar';
+
+  if (error) {
+    alert('Não foi possível entrar. Confira sua matrícula e senha.');
+    return;
+  }
+
+  alert('Autenticação realizada com sucesso! Próxima etapa: abrir o painel do funcionário.');
+});
+    
   </script>
 </body>
 </html>
