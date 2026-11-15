@@ -130,26 +130,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     alert('Não foi possível entrar. Confira sua matrícula e senha.');
     return;
   }
-
-  document.querySelector('.login').innerHTML = `
-  <div class="logo">PJ</div>
-  <h1>Painel do Funcionário</h1>
-  <div class="subtitulo">Condomínio Pátio Jardins</div>
-
-  <p>Bem-vindo ao Livro de Ocorrências Digital!</p>
-
-  <button id="registrar">Registrar ocorrência</button>
-  <button onclick="alert('Módulo em construção')">
-    Consultar ocorrências
-  </button>
-  <button onclick="alert('Módulo em construção')">
-    Conferir materiais
-  </button>
-  <button onclick="alert('Módulo em construção')">
-    Compartilhar informações
-  </button>
-  <button id="sair">Sair do sistema</button>
-`;
+mostrarPainel();
+  
 
 
 function mostrarPainel() {
