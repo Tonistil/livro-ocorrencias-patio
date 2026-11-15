@@ -204,7 +204,9 @@ async function consultarOcorrencias() {
 
     const detalhes = document.createElement('p');
     detalhes.textContent =
-      'Data: ' + (item.created_at || item.data_hora || 'Não informada') +
+      'Data: ' + (item.created_at
+  ? new Date(item.created_at).toLocaleString('pt-BR')
+  : 'Não informada') +
       '\nPlantão: ' + (item.plantao_id || 'Não informado') +
       '\nCategoria: ' + (item.categoria_id || 'Não informada') +
       '\nDescrição: ' + (item.descricao || '') +
