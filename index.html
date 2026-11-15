@@ -329,7 +329,11 @@ filtroCategoria.addEventListener('change', renderizarOcorrencias);
 
 renderizarOcorrencias();
 }
-
+document.getElementById('limparFiltros').addEventListener('click', () => {
+  filtroPlantao.value = '';
+  filtroCategoria.value = '';
+  renderizarOcorrencias();
+});
 
 async function mostrarFormulario() {
   document.querySelector('.login').innerHTML = `
