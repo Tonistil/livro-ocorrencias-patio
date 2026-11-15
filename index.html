@@ -163,6 +163,16 @@ async function consultarOcorrencias() {
     <div class="logo">PJ</div>
     <h1>Consultar Ocorrências</h1>
     <div class="subtitulo">Condomínio Pátio Jardins</div>
+    <label for="filtroPlantao">Filtrar por plantão:</label>
+
+<select id="filtroPlantao">
+  <option value="">Todos os plantões</option>
+</select>
+<label for="filtroCategoria">Filtrar por categoria:</label>
+
+<select id="filtroCategoria">
+  <option value="">Todas as categorias</option>
+</select>
     <div id="listaOcorrencias">Carregando ocorrências...</div>
     <button id="voltarPainel">Voltar ao painel</button>
   `;
@@ -215,10 +225,26 @@ const { data, error } = await supabase
       item.nome || `Plantão ${item.numero}`
     ])
   );
+  const filtroPlantao = document.getElementById('filtroPlantao');
+
+plantoes.forEach(plantao => {
+  const opcao = document.createElement('option');
+  opcao.value = plantao.id;
+  opcao.textContent = plantao.nome || `Plantão ${plantao.numero}`;
+  filtroPlantao.appendChild(opcao);
+});
 
   const nomesCategorias = new Map(
     categorias.map(item => [item.id, item.nome])
   );
+  const filtroCategoria = document.getElementById('filtroCategoria');
+
+categorias.forEach(categoria => {
+  const opcao = document.createElement('option');
+  opcao.value = categoria.id;
+  opcao.textContent = categoria.nome;
+  filtroCategoria.appendChild(opcao);
+});
   
 const idsUsuarios = [...new Set(
   data.map(item => item.usuario_id).filter(Boolean)
@@ -240,7 +266,18 @@ const nomesUsuarios = new Map(
       
 
 
-  data.forEach(item => {
+  function renderizarOcorrencias() {
+  lista.innerHTML = '';
+
+  const plantaoSelecionado = filtroPlantao.value;
+  const categoriaSelecionada = filtroCategoria.value;
+
+  const ocorrenciasFiltradas = data.filter(item =>
+    (!plantaoSelecionado || String(item.plantao_id) === plantaoSelecionado) &&
+    (!categoriaSelecionada || String(item.categoria_id) === categoriaSelecionada)
+  );
+
+  ocorrenciasFiltradas.forEach(item => {
     const card = document.createElement('div');
 
     card.style.cssText = `
@@ -280,8 +317,14 @@ const nomesUsuarios = new Map(
 
     card.appendChild(titulo);
     card.appendChild(detalhes);
-    lista.appendChild(card);
+        lista.appendChild(card);
   });
+}
+
+filtroPlantao.addEventListener('change', renderizarOcorrencias);
+filtroCategoria.addEventListener('change', renderizarOcorrencias);
+
+renderizarOcorrencias();
 }
 
 
