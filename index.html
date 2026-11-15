@@ -184,6 +184,25 @@ function mostrarFormulario() {
     </form>
   `;
 
+  const { data: categorias, error } = await supabase
+    .from('categorias')
+    .select('id, nome')
+    .eq('ativo', true)
+    .order('nome');
+
+  const campoCategoria = document.getElementById('categoria');
+
+  if (error) {
+    alert('Erro ao carregar categorias: ' + error.message);
+  } else {
+    categorias.forEach((item) => {
+      const opcao = document.createElement('option');
+      opcao.value = item.id;
+      opcao.textContent = item.nome;
+      campoCategoria.appendChild(opcao);
+    });
+  }
+    
   document.getElementById('voltar').addEventListener('click', mostrarPainel);
 
   document.getElementById('formOcorrencia').addEventListener('submit', (event) => {
