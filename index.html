@@ -256,7 +256,7 @@ plantoes.forEach(item => {
 });
   document.getElementById('voltar').addEventListener('click', mostrarPainel);
 
-  document.getElementById('formOcorrencia').addEventListener('submit', (event) => {
+  document.getElementById('formOcorrencia').addEventListener('submit', async (event) => {
     event.preventDefault();
     alert('O formulário está pronto. A gravação no banco será configurada na próxima etapa.');
   });
