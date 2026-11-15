@@ -210,9 +210,9 @@ const { data, error } = await supabase
   .eq('ativo', true);
 
   const { data: categorias, error: erroCategorias } = await supabase
-    .from('categorias')
-    .select('id, nome')
-    .in('id', idsCategorias);
+  .from('categorias')
+  .select('id, nome')
+  .eq('ativo', true);
 
   if (erroPlantoes || erroCategorias) {
     alert('Erro ao buscar nomes dos plantões ou categorias.');
