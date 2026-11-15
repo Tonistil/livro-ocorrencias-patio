@@ -205,9 +205,9 @@ const { data, error } = await supabase
   const idsCategorias = [...new Set(data.map(item => item.categoria_id).filter(Boolean))];
 
   const { data: plantoes, error: erroPlantoes } = await supabase
-    .from('plantoes')
-    .select('id, numero, nome')
-    .in('id', idsPlantoes);
+  .from('plantoes')
+  .select('id, numero, nome')
+  .eq('ativo', true);
 
   const { data: categorias, error: erroCategorias } = await supabase
     .from('categorias')
