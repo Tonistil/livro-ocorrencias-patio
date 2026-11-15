@@ -187,6 +187,36 @@ async function consultarOcorrencias() {
     lista.textContent = 'Nenhuma ocorrência encontrada.';
     return;
   }
+  
+  const idsPlantoes = [...new Set(data.map(item => item.plantao_id).filter(Boolean))];
+  const idsCategorias = [...new Set(data.map(item => item.categoria_id).filter(Boolean))];
+
+  const { data: plantoes, error: erroPlantoes } = await supabase
+    .from('plantoes')
+    .select('id, numero, nome')
+    .in('id', idsPlantoes);
+
+  const { data: categorias, error: erroCategorias } = await supabase
+    .from('categorias')
+    .select('id, nome')
+    .in('id', idsCategorias);
+
+  if (erroPlantoes || erroCategorias) {
+    alert('Erro ao buscar nomes dos plantões ou categorias.');
+    return;
+  }
+
+  const nomesPlantoes = new Map(
+    plantoes.map(item => [
+      item.id,
+      item.nome || `Plantão ${item.numero}`
+    ])
+  );
+
+  const nomesCategorias = new Map(
+    categorias.map(item => [item.id, item.nome])
+  );
+
 
   data.forEach(item => {
     const card = document.createElement('div');
@@ -217,8 +247,8 @@ async function consultarOcorrencias() {
             second: '2-digit'
           })
         : 'Não informada') +
-      '\nPlantão: ' + (item.plantao_id || 'Não informado') +
-      '\nCategoria: ' + (item.categoria_id || 'Não informada') +
+      '\nPlantão: ' + (nomesPlantoes.get(item.plantao_id) || 'Não informado') +
+'\nCategoria: ' + (nomesCategorias.get(item.categoria_id) || 'Não informada') +
       '\nDescrição: ' + (item.descricao || '') +
       '\nObservação: ' + (item.observacao || '');
 
