@@ -219,6 +219,25 @@ const { data, error } = await supabase
   const nomesCategorias = new Map(
     categorias.map(item => [item.id, item.nome])
   );
+  
+const idsUsuarios = [...new Set(
+  data.map(item => item.usuario_id).filter(Boolean)
+)];
+
+const { data: usuarios, error: erroUsuarios } = await supabase
+  .from('perfis')
+  .select('id, nome')
+  .in('id', idsUsuarios);
+
+if (erroUsuarios) {
+  alert('Erro ao buscar nomes dos funcionários: ' + erroUsuarios.message);
+  return;
+}
+
+const nomesUsuarios = new Map(
+  usuarios.map(item => [item.id, item.nome])
+);
+      
 
 
   data.forEach(item => {
@@ -250,6 +269,7 @@ const { data, error } = await supabase
             second: '2-digit'
           })
         : 'Não informada') +
+      '\nFuncionário: ' + (nomesUsuarios.get(item.usuario_id) || 'Não identificado') +
       '\nPlantão: ' + (nomesPlantoes.get(item.plantao_id) || 'Não informado') +
 '\nCategoria: ' + (nomesCategorias.get(item.categoria_id) || 'Não informada') +
       '\nDescrição: ' + (item.descricao || '') +
