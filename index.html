@@ -202,17 +202,28 @@ async function consultarOcorrencias() {
     const titulo = document.createElement('strong');
     titulo.textContent = 'Ocorrência registrada';
 
+    
     const detalhes = document.createElement('p');
+
     detalhes.textContent =
       'Data: ' + (item.created_at
-  ? new Date(item.created_at).toLocaleString('pt-BR')
-  : 'Não informada') +
+        ? new Date(item.created_at).toLocaleString('pt-BR', {
+            timeZone: 'America/Bahia',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          })
+        : 'Não informada') +
       '\nPlantão: ' + (item.plantao_id || 'Não informado') +
       '\nCategoria: ' + (item.categoria_id || 'Não informada') +
       '\nDescrição: ' + (item.descricao || '') +
       '\nObservação: ' + (item.observacao || '');
 
     detalhes.style.whiteSpace = 'pre-line';
+
 
     card.appendChild(titulo);
     card.appendChild(detalhes);
