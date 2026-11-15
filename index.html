@@ -151,7 +151,29 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   <button id="sair">Sair do sistema</button>
 `;
 
-document.getElementById('registrar').addEventListener('click', () => {
+
+function mostrarPainel() {
+  document.querySelector('.login').innerHTML = `
+    <div class="logo">PJ</div>
+    <h1>Painel do Funcionário</h1>
+    <div class="subtitulo">Condomínio Pátio Jardins</div>
+    <p>Bem-vindo ao Livro de Ocorrências Digital!</p>
+    <button id="registrar">Registrar ocorrência</button>
+    <button onclick="alert('Módulo em construção')">Consultar ocorrências</button>
+    <button onclick="alert('Módulo em construção')">Conferir materiais</button>
+    <button onclick="alert('Módulo em construção')">Compartilhar informações</button>
+    <button id="sair">Sair do sistema</button>
+  `;
+
+  document.getElementById('registrar').addEventListener('click', mostrarFormulario);
+
+  document.getElementById('sair').addEventListener('click', async () => {
+    await supabase.auth.signOut();
+    location.reload();
+  });
+}
+
+function mostrarFormulario() {
   document.querySelector('.login').innerHTML = `
     <div class="logo">PJ</div>
     <h1>Registrar ocorrência</h1>
@@ -169,40 +191,25 @@ document.getElementById('registrar').addEventListener('click', () => {
       </select>
 
       <label>Descrição</label>
-      <textarea id="descricao" required
-        placeholder="Descreva a ocorrência"></textarea>
+      <textarea id="descricao" required placeholder="Descreva a ocorrência"></textarea>
 
       <label>Observação / Liberação</label>
-      <textarea id="observacao"
-        placeholder="Informações adicionais"></textarea>
+      <textarea id="observacao" placeholder="Informações adicionais"></textarea>
 
       <p>Área: Portaria</p>
       <button type="submit">Salvar ocorrência</button>
       <button type="button" id="voltar">Voltar ao painel</button>
     </form>
   `;
-});
-document.getElementById('voltar').addEventListener('click', () => {
-  document.querySelector('.login').innerHTML = `
-    <div class="logo">PJ</div>
-    <h1>Painel do Funcionário</h1>
-    <div class="subtitulo">Condomínio Pátio Jardins</div>
-    <p>Bem-vindo ao Livro de Ocorrências Digital!</p>
-    <button id="registrar">Registrar ocorrência</button>
-    <button onclick="alert('Módulo em construção')">Consultar ocorrências</button>
-    <button onclick="alert('Módulo em construção')">Conferir materiais</button>
-    <button onclick="alert('Módulo em construção')">Compartilhar informações</button>
-    <button id="sair">Sair do sistema</button>
-  `;
-});
-document.getElementById('sair').addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  location.reload();
-});
-  
-});// Fecha o comando do botão Entrar
-    document.getElementById('voltar')?.addEventListener('click', () => {
-  location.reload();
+
+  document.getElementById('voltar').addEventListener('click', mostrarPainel);
+
+  document.getElementById('formOcorrencia').addEventListener('submit', (event) => {
+    event.preventDefault();
+    alert('O formulário está pronto. A gravação no banco será configurada na próxima etapa.');
+  });
+    }
+    
 });
 </script>
 </body>
