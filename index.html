@@ -170,10 +170,13 @@ async function consultarOcorrencias() {
   document.getElementById('voltarPainel')
     .addEventListener('click', mostrarPainel);
 
-  const { data, error } = await supabase
-    .from('ocorrencias')
-    .select('*')
-    .limit(100);
+  
+const { data, error } = await supabase
+  .from('ocorrencias')
+  .select('*')
+  .order('created_at', { ascending: false })
+  .limit(500);
+
 
   const lista = document.getElementById('listaOcorrencias');
   lista.innerHTML = '';
