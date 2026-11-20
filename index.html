@@ -432,6 +432,38 @@ plantoes.forEach(item => {
   opcao.textContent = item.nome || `Plantão ${item.numero}`;
   campoPlantao.appendChild(opcao);
 });
+  const campoDescricao = document.getElementById('descricao');
+const campoObservacao = document.getElementById('observacao');
+
+let carregamentoRascunho = 0;
+
+campoPlantao.addEventListener('change', async () => {
+  const plantaoId = campoPlantao.value;
+  const tentativa = ++carregamentoRascunho;
+
+  campoDescricao.value = '';
+  campoObservacao.value = '';
+
+  if (!plantaoId) return;
+
+  const { data, error } = await supabase
+    .from('rascunhos_ocorrencias')
+    .select('descricao, observacao')
+    .eq('plantao_id', plantaoId)
+    .maybeSingle();
+
+  if (tentativa !== carregamentoRascunho) return;
+
+  if (error) {
+    alert('Erro ao recuperar rascunho: ' + error.message);
+    return;
+  }
+
+  if (data) {
+    campoDescricao.value = data.descricao || '';
+    campoObservacao.value = data.observacao || '';
+  }
+});
   document.getElementById('voltar').addEventListener('click', () => {
   mostrarPainel();
 });
