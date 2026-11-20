@@ -531,10 +531,18 @@ campoObservacao.addEventListener('input', programarSalvamentoRascunho);
   botao.textContent = 'Salvar ocorrência';
 
   if (error) {
-    alert('Erro ao salvar ocorrência: ' + error.message);
-    return;
+  await salvarRascunho(plantao_id, descricao, observacao);
+  alert('Erro ao salvar ocorrência: ' + error.message);
+  return;
   }
+const { error: erroRascunho } = await supabase
+  .from('rascunhos_ocorrencias')
+  .delete()
+  .eq('plantao_id', plantao_id);
 
+if (erroRascunho) {
+  alert('A ocorrência foi registrada, mas não foi possível limpar o rascunho: ' + erroRascunho.message);
+    }
     alert('Ocorrência registrada com sucesso!');
   document.getElementById('formOcorrencia').reset();
 });
