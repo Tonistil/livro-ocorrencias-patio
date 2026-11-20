@@ -513,8 +513,8 @@ campoObservacao.addEventListener('input', programarSalvamentoRascunho);
   const plantao_id = document.getElementById('plantao').value;
   const categoria_id = document.getElementById('categoria').value;
   const descricao = document.getElementById('descricao').value.trim();
-  clearTimeout(temporizadorRascunho);
   const observacao = document.getElementById('observacao').value.trim();
+    clearTimeout(temporizadorRascunho);
 
   const { error } = await supabase
     .from('ocorrencias')
