@@ -467,7 +467,40 @@ campoPlantao.addEventListener('change', async () => {
   document.getElementById('voltar').addEventListener('click', () => {
   mostrarPainel();
 });
+let temporizadorRascunho;
 
+async function salvarRascunho() {
+  const plantaoId = campoPlantao.value;
+
+  if (!plantaoId) return;
+
+  const { error } = await supabase
+    .from('rascunhos_ocorrencias')
+    .upsert({
+      plantao_id: plantaoId,
+      descricao: campoDescricao.value,
+      observacao: campoObservacao.value,
+      atualizado_por: perfil.id,
+      updated_at: new Date().toISOString()
+    }, {
+      onConflict: 'plantao_id'
+    });
+
+  if (error) {
+    console.error('Erro ao salvar rascunho:', error);
+  }
+}
+
+function programarSalvamentoRascunho() {
+  clearTimeout(temporizadorRascunho);
+
+  temporizadorRascunho = setTimeout(() => {
+    salvarRascunho();
+  }, 1000);
+}
+
+campoDescricao.addEventListener('input', programarSalvamentoRascunho);
+campoObservacao.addEventListener('input', programarSalvamentoRascunho);
   document.getElementById('formOcorrencia').addEventListener('submit', async (event) => {
   event.preventDefault();
 
