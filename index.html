@@ -469,17 +469,15 @@ campoPlantao.addEventListener('change', async () => {
 });
 let temporizadorRascunho;
 
-async function salvarRascunho() {
-  const plantaoId = campoPlantao.value;
-
+async function salvarRascunho(plantaoId, descricao, observacao) {
   if (!plantaoId) return;
 
   const { error } = await supabase
     .from('rascunhos_ocorrencias')
     .upsert({
       plantao_id: plantaoId,
-      descricao: campoDescricao.value,
-      observacao: campoObservacao.value,
+      descricao: descricao,
+      observacao: observacao,
       atualizado_por: perfil.id,
       updated_at: new Date().toISOString()
     }, {
@@ -494,8 +492,12 @@ async function salvarRascunho() {
 function programarSalvamentoRascunho() {
   clearTimeout(temporizadorRascunho);
 
+  const plantaoId = campoPlantao.value;
+  const descricao = campoDescricao.value;
+  const observacao = campoObservacao.value;
+
   temporizadorRascunho = setTimeout(() => {
-    salvarRascunho();
+    salvarRascunho(plantaoId, descricao, observacao);
   }, 1000);
 }
 
