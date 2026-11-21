@@ -142,19 +142,94 @@ function mostrarPainel() {
     <p>Bem-vindo ao Livro de Ocorrências Digital!</p>
     <button id="registrar">Registrar ocorrência</button>
     <button id="consultar">Consultar ocorrências</button>
-    <button onclick="alert('Módulo em construção')">Conferir materiais</button>
+    <button id="conferirMateriais">Conferir materiais</button>
     <button onclick="alert('Módulo em construção')">Compartilhar informações</button>
     <button id="sair">Sair do sistema</button>
   `;
 
   document.getElementById('registrar').addEventListener('click', mostrarFormulario);
   document.getElementById('consultar').addEventListener('click', consultarOcorrencias);
+  document.getElementById('conferirMateriais').addEventListener('click', mostrarMateriais);
 
   document.getElementById('sair').addEventListener('click', async () => {
     await supabase.auth.signOut();
     location.reload();
   });
 }
+    function mostrarMateriais() {
+  const tela = document.querySelector('.login');
+
+  tela.innerHTML = `
+    <div class="logo">PJ</div>
+    <h1>Conferência de Materiais</h1>
+    <div class="subtitulo">Condomínio Pátio Jardins</div>
+
+    <div id="listaMateriais"></div>
+
+    <button id="voltarMateriais">Voltar ao painel</button>
+  `;
+        const materiais = [
+    'Computador completo',
+    'Porteiro eletrônico',
+    'Rádio HT',
+    'Carregador de rádio HT',
+    'Bateria de rádio HT',
+    'Controle do portão de entrada/saída de veículos',
+    'Controle da cancela de entrada de moradores',
+    'Botoeira de entrada de veículos visitantes/saída de veículos',
+    'Telefone corporativo',
+    'Interfone ramal 94/500',
+    'Tablet com carregador',
+    'Acesso ao Nextin',
+    'Câmeras',
+    'Chave do entreposto',
+    'Chaves das cancelas',
+    'Extintor',
+    'Ar-condicionado com controle',
+    'Bebedouro'
+  ];
+
+  const lista = document.getElementById('listaMateriais');
+
+  materiais.forEach((material, indice) => {
+    lista.innerHTML += `
+      <div class="material-item">
+        <h3>${indice + 1}. ${material}</h3>
+
+        <label>Quantidade</label>
+        <input type="number" min="0" value="1">
+
+        <label>Estado</label>
+        <select>
+          <option value="Bom">Bom</option>
+          <option value="Ruim">Ruim</option>
+        </select>
+
+        <label>Observação</label>
+        <textarea placeholder="Observações, se necessário"></textarea>
+      </div>
+    `;
+  });
+
+  lista.innerHTML += `
+    <div class="material-item">
+      <h3>19. OUTROS</h3>
+      <input type="text" placeholder="Nome do material">
+      <label>Quantidade</label>
+      <input type="number" min="0" value="1">
+      <label>Estado</label>
+      <select>
+        <option value="Bom">Bom</option>
+        <option value="Ruim">Ruim</option>
+      </select>
+      <label>Observação</label>
+      <textarea placeholder="Observações"></textarea>
+    </div>
+  `;
+        document.getElementById('voltarMateriais').addEventListener('click', () => {
+    mostrarPainel();
+  });
+    }
   
 async function consultarOcorrencias() {
   const tela = document.querySelector('.login');
