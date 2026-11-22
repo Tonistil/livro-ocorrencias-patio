@@ -378,7 +378,12 @@ plantoesMateriais.forEach(plantao => {
 <select id="filtroPlantaoHistorico">
   <option value="">Todos os plantões</option>
 </select>
-
+<label>Filtrar por data:</label>
+<input type="date" id="filtroDataHistorico">
+<label>Filtrar por funcionário:</label>
+<select id="filtroFuncionarioHistorico">
+  <option value="">Todos os funcionários</option>
+</select>
 <div id="listaHistoricoMateriais">
   Carregando histórico...
 </div>
@@ -392,6 +397,8 @@ plantoesMateriais.forEach(plantao => {
 
   const lista = document.getElementById('listaHistoricoMateriais');
 const filtroPlantaoHistorico = document.getElementById('filtroPlantaoHistorico');
+        const filtroDataHistorico = document.getElementById('filtroDataHistorico');
+const filtroFuncionarioHistorico = document.getElementById('filtroFuncionarioHistorico');
   const { data: conferencias, error } = await supabase
     .from('Conferencia_materiais')
     .select('*')
@@ -435,7 +442,12 @@ if (erroMateriais || erroUsuarios || erroPlantoes) {
 const nomesUsuarios = new Map(
   usuariosHistorico.map(item => [item.id, item.nome])
 );
-
+usuariosHistorico.forEach(usuario => {
+  const opcao = document.createElement('option');
+  opcao.value = usuario.id;
+  opcao.textContent = usuario.nome;
+  filtroFuncionarioHistorico.appendChild(opcao);
+});
 const nomesPlantoes = new Map(
   plantoesHistorico.map(item => [
     item.id,
@@ -451,11 +463,31 @@ const nomesPlantoes = new Map(
 lista.innerHTML = '';
 const conferenciasFiltradas = () => {
   const plantaoSelecionado = filtroPlantaoHistorico.value;
+  const dataSelecionada = filtroDataHistorico.value;
+  const funcionarioSelecionado = filtroFuncionarioHistorico.value;
 
-  return conferencias.filter(conferencia =>
-    !plantaoSelecionado ||
-    String(conferencia.plantao_id) === plantaoSelecionado
-  );
+  return conferencias.filter(conferencia => {
+    const correspondePlantao =
+      !plantaoSelecionado ||
+      String(conferencia.plantao_id) === plantaoSelecionado;
+
+    const correspondeFuncionario =
+      !funcionarioSelecionado ||
+      String(conferencia.usuario_id) === funcionarioSelecionado;
+
+    const dataConferencia = new Date(conferencia.created_at)
+      .toLocaleDateString('en-CA', {
+        timeZone: 'America/Bahia'
+      });
+
+    const correspondeData =
+      !dataSelecionada ||
+      dataConferencia === dataSelecionada;
+
+    return correspondePlantao &&
+      correspondeFuncionario &&
+      correspondeData;
+  });
 };
 
 function renderizarHistoricoMateriais() {
@@ -509,6 +541,9 @@ function renderizarHistoricoMateriais() {
 filtroPlantaoHistorico.addEventListener('change', renderizarHistoricoMateriais);
 
 renderizarHistoricoMateriais();
+filtroDataHistorico.addEventListener('change', renderizarHistoricoMateriais);
+
+filtroFuncionarioHistorico.addEventListener('change', renderizarHistoricoMateriais);        
 }
 async function consultarOcorrencias() {
   const tela = document.querySelector('.login');
