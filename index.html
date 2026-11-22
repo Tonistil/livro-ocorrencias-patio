@@ -425,7 +425,7 @@ const { data: usuariosHistorico, error: erroUsuarios } = await supabase
 const { data: plantoesHistorico, error: erroPlantoes } = await supabase
   .from('plantoes')
   .select('id, nome, numero')
-  .in('id', idsPlantoes);
+  .order('numero', { ascending: true });
 
 if (erroMateriais || erroUsuarios || erroPlantoes) {
   lista.textContent = 'Erro ao carregar os detalhes do histórico.';
