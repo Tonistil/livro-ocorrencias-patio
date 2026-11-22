@@ -171,16 +171,59 @@ document.getElementById('administracaoUsuarios')
     <div class="subtitulo">Condomínio Pátio Jardins</div>
 
     <div id="conteudoAdministracaoUsuarios">
-      <p>Gerenciamento de funcionários e acessos.</p>
-    </div>
+  <p>Gerenciamento de funcionários e acessos.</p>
+
+  <button id="cadastrarFuncionario">
+    Cadastrar funcionário
+  </button>
+</div>
 
     <button id="voltarAdministracaoUsuarios">
       Voltar ao painel
     </button>
   `;
-
+document.getElementById('cadastrarFuncionario')
+  .addEventListener('click', mostrarFormularioCadastroFuncionario);
   document.getElementById('voltarAdministracaoUsuarios')
     .addEventListener('click', mostrarPainel);
+    }
+    function mostrarFormularioCadastroFuncionario() {
+  const tela = document.querySelector('.login');
+
+  tela.innerHTML = `
+    <div class="logo">PJ</div>
+    <h1>Cadastrar Funcionário</h1>
+    <div class="subtitulo">Condomínio Pátio Jardins</div>
+
+    <label>Nome completo</label>
+    <input type="text" id="nomeNovoFuncionario" placeholder="Nome completo">
+
+    <label>Matrícula</label>
+    <input type="text" id="matriculaNovoFuncionario" placeholder="Matrícula">
+
+    <label>Senha inicial</label>
+    <input type="password" id="senhaNovoFuncionario" placeholder="Senha inicial">
+
+    <label>Cargo ou função</label>
+    <select id="cargoNovoFuncionario">
+      <option value="">Selecione</option>
+      <option value="Porteiro">Porteiro</option>
+      <option value="Supervisor">Supervisor</option>
+      <option value="Síndico">Síndico</option>
+      <option value="Administrador">Administrador</option>
+    </select>
+
+    <label>Plantão fixo</label>
+    <select id="plantaoNovoFuncionario">
+      <option value="">Carregando plantões...</option>
+    </select>
+
+    <button id="salvarNovoFuncionario">Salvar funcionário</button>
+    <button id="voltarCadastroFuncionario">Voltar</button>
+  `;
+
+  document.getElementById('voltarCadastroFuncionario')
+    .addEventListener('click', mostrarAdministracaoUsuarios);
     }
     async function mostrarMateriais() {
   const tela = document.querySelector('.login');
