@@ -374,9 +374,14 @@ plantoesMateriais.forEach(plantao => {
     <div class="logo">PJ</div>
     <h1>Histórico de Conferências</h1>
     <div class="subtitulo">Condomínio Pátio Jardins</div>
-    <div id="listaHistoricoMateriais">
-      Carregando histórico...
-    </div>
+    <label>Filtrar por plantão:</label>
+<select id="filtroPlantaoHistorico">
+  <option value="">Todos os plantões</option>
+</select>
+
+<div id="listaHistoricoMateriais">
+  Carregando histórico...
+</div>
     <button id="voltarHistoricoMateriais">
       Voltar ao painel
     </button>
@@ -386,7 +391,7 @@ plantoesMateriais.forEach(plantao => {
     .addEventListener('click', mostrarPainel);
 
   const lista = document.getElementById('listaHistoricoMateriais');
-
+const filtroPlantaoHistorico = document.getElementById('filtroPlantaoHistorico');
   const { data: conferencias, error } = await supabase
     .from('Conferencia_materiais')
     .select('*')
@@ -437,8 +442,26 @@ const nomesPlantoes = new Map(
     item.nome || `Plantão ${item.numero}`
   ])
 );
+        plantoesHistorico.forEach(plantao => {
+  const opcao = document.createElement('option');
+  opcao.value = plantao.id;
+  opcao.textContent = plantao.nome || `Plantão ${plantao.numero}`;
+  filtroPlantaoHistorico.appendChild(opcao);
+});
 lista.innerHTML = '';
-conferencias.forEach(conferencia => {
+const conferenciasFiltradas = () => {
+  const plantaoSelecionado = filtroPlantaoHistorico.value;
+
+  return conferencias.filter(conferencia =>
+    !plantaoSelecionado ||
+    String(conferencia.plantao_id) === plantaoSelecionado
+  );
+};
+
+function renderizarHistoricoMateriais() {
+  lista.innerHTML = '';
+
+  conferenciasFiltradas().forEach(conferencia => {
   const card = document.createElement('div');
 
   card.style.cssText = `
@@ -481,7 +504,11 @@ conferencias.forEach(conferencia => {
 
   lista.appendChild(card);
 });
-    }
+}
+
+filtroPlantaoHistorico.addEventListener('change', renderizarHistoricoMateriais);
+
+renderizarHistoricoMateriais();
 async function consultarOcorrencias() {
   const tela = document.querySelector('.login');
 
