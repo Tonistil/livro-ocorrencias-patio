@@ -221,7 +221,29 @@ document.getElementById('cadastrarFuncionario')
     <button id="salvarNovoFuncionario">Salvar funcionário</button>
     <button id="voltarCadastroFuncionario">Voltar</button>
   `;
+(async () => {
+  const selectPlantao = document.getElementById('plantaoNovoFuncionario');
 
+  const { data: plantoes, error } = await supabase
+    .from('plantoes')
+    .select('id, nome, numero')
+    .order('numero', { ascending: true });
+
+  if (error) {
+    selectPlantao.innerHTML = '<option value="">Erro ao carregar plantões</option>';
+    alert('Erro ao carregar plantões: ' + error.message);
+    return;
+  }
+
+  selectPlantao.innerHTML = '<option value="">Selecione o plantão</option>';
+
+  plantoes.forEach(plantao => {
+    const opcao = document.createElement('option');
+    opcao.value = plantao.id;
+    opcao.textContent = plantao.nome || 'Plantão ' + plantao.numero;
+    selectPlantao.appendChild(opcao);
+  });
+})();
   document.getElementById('voltarCadastroFuncionario')
     .addEventListener('click', mostrarAdministracaoUsuarios);
     }
