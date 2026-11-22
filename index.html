@@ -256,16 +256,16 @@ plantoesMateriais.forEach(plantao => {
         <h3>${indice + 1}. ${material}</h3>
 
         <label>Quantidade</label>
-        <input type="number" min="0" value="1">
+        <input type="number" class="quantidade-material" min="0" value="1">
 
         <label>Estado</label>
-        <select>
+        <select class="estado-material">
           <option value="Bom">Bom</option>
           <option value="Ruim">Ruim</option>
         </select>
 
         <label>Observação</label>
-        <textarea placeholder="Observações, se necessário"></textarea>
+        <textarea class="observacao-material" placeholder="Observações, se necessário"></textarea>
       </div>
     `;
   });
@@ -278,9 +278,9 @@ plantoesMateriais.forEach(plantao => {
       <input type="number" class="quantidade-material" min="0" value="1">
       <label>Estado</label>
       <select class="estado-material">
-        <option value="Bom">Bom</option>
-        <option value="Ruim">Ruim</option>
-      <select class="estado-material">
+  <option value="Bom">Bom</option>
+  <option value="Ruim">Ruim</option>
+</select>
       <label>Observação</label>
       <textarea class="observacao-material" placeholder="Observações"></textarea>
     </div>
