@@ -206,11 +206,10 @@ document.getElementById('cadastrarFuncionario')
 
     <label>Cargo ou função</label>
     <select id="cargoNovoFuncionario">
-      <option value="">Selecione</option>
-      <option value="Porteiro">Porteiro</option>
-      <option value="Supervisor">Supervisor</option>
-      <option value="Síndico">Síndico</option>
-      <option value="Administrador">Administrador</option>
+      <option value="porteiro">Porteiro</option>
+<option value="supervisor">Supervisor</option>
+<option value="sindico">Síndico</option>
+<option value="admin">Administrador</option>
     </select>
 
     <label>Plantão fixo</label>
@@ -246,6 +245,53 @@ document.getElementById('cadastrarFuncionario')
 })();
   document.getElementById('voltarCadastroFuncionario')
     .addEventListener('click', mostrarAdministracaoUsuarios);
+      document.getElementById('salvarNovoFuncionario')
+  .addEventListener('click', async () => {
+    const botao = document.getElementById('salvarNovoFuncionario');
+
+    const nome = document.getElementById('nomeNovoFuncionario').value.trim();
+    const matricula = document.getElementById('matriculaNovoFuncionario').value.trim().toLowerCase();
+    const senha = document.getElementById('senhaNovoFuncionario').value;
+    const funcao = document.getElementById('cargoNovoFuncionario').value;
+    const plantao_id = document.getElementById('plantaoNovoFuncionario').value;
+
+    if (!nome || !matricula || !senha || !funcao || !plantao_id) {
+      alert('Preencha todos os campos.');
+      return;
+    }
+
+    botao.disabled = true;
+    botao.textContent = 'Cadastrando...';
+
+    const { data, error } = await supabase.functions.invoke(
+      'cadastrar-funcionario',
+      {
+        body: {
+          nome,
+          matricula,
+          senha,
+          funcao,
+          plantao_id
+        }
+      }
+    );
+
+    botao.disabled = false;
+    botao.textContent = 'Salvar funcionário';
+
+    if (error) {
+      alert('Erro ao cadastrar funcionário: ' + error.message);
+      return;
+    }
+
+    if (!data || !data.sucesso) {
+      alert(data?.mensagem || 'Não foi possível cadastrar.');
+      return;
+    }
+
+    alert(data.mensagem);
+    mostrarAdministracaoUsuarios();
+  });
     }
     async function mostrarMateriais() {
   const tela = document.querySelector('.login');
