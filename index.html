@@ -287,6 +287,82 @@ plantoesMateriais.forEach(plantao => {
         document.getElementById('voltarMateriais').addEventListener('click', () => {
     mostrarPainel();
   });
+      botaoSalvarMateriais.addEventListener('click', async () => {
+  const plantao_id = campoPlantaoMateriais.value;
+
+  if (!plantao_id) {
+    alert('Selecione o plantão.');
+    return;
+  }
+
+  const itens = [...lista.querySelectorAll('.material-item')]
+    .map(item => {
+      const nome = item.dataset.material === 'OUTROS'
+        ? item.querySelector('.nome-outro-material').value.trim()
+        : item.dataset.material;
+
+      if (!nome) return null;
+
+      return {
+        nome_material: nome,
+        quantidade: Number(item.querySelector('.quantidade-material').value),
+        estado: item.querySelector('.estado-material').value,
+        observacao: item.querySelector('.observacao-material').value.trim()
+      };
+    })
+    .filter(Boolean);
+
+  if (itens.length === 0) {
+    alert('Nenhum material informado.');
+    return;
+  }
+
+  if (itens.some(item =>
+    !Number.isInteger(item.quantidade) || item.quantidade < 0
+  )) {
+    alert('Confira as quantidades dos materiais.');
+    return;
+  }
+
+  botaoSalvarMateriais.disabled = true;
+  botaoSalvarMateriais.textContent = 'Salvando...';
+
+  const { data: conferencia, error: erroConferencia } = await supabase
+    .from('Conferencia_materiais')
+    .insert({
+      plantao_id: plantao_id,
+      usuario_id: perfilMateriais.id
+    })
+    .select('id')
+    .single();
+
+  if (erroConferencia) {
+    alert('Erro ao salvar conferência: ' + erroConferencia.message);
+    botaoSalvarMateriais.disabled = false;
+    botaoSalvarMateriais.textContent = 'Salvar conferência';
+    return;
+  }
+
+  const itensParaSalvar = itens.map(item => ({
+    ...item,
+    conferencia_id: conferencia.id
+  }));
+
+  const { error: erroItens } = await supabase
+    .from('itens_conferencia_materiais')
+    .insert(itensParaSalvar);
+
+  if (erroItens) {
+    alert('A conferência foi criada, mas houve erro ao salvar os materiais: ' + erroItens.message);
+    botaoSalvarMateriais.disabled = false;
+    botaoSalvarMateriais.textContent = 'Salvar conferência';
+    return;
+  }
+
+  alert('Conferência de materiais salva com sucesso!');
+  botaoSalvarMateriais.disabled = false;
+  botaoSalvarMateriais.textContent = 'Salvar conferência';
+});
     }
 async function consultarOcorrencias() {
   const tela = document.querySelector('.login');
