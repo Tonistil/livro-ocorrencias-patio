@@ -143,6 +143,7 @@ function mostrarPainel() {
     <button id="registrar">Registrar ocorrência</button>
     <button id="consultar">Consultar ocorrências</button>
     <button id="conferirMateriais">Conferir materiais</button>
+    <button id="historicoMateriais">Histórico de conferências</button>
     <button onclick="alert('Módulo em construção')">Compartilhar informações</button>
     <button id="sair">Sair do sistema</button>
   `;
@@ -150,6 +151,7 @@ function mostrarPainel() {
   document.getElementById('registrar').addEventListener('click', mostrarFormulario);
   document.getElementById('consultar').addEventListener('click', consultarOcorrencias);
   document.getElementById('conferirMateriais').addEventListener('click', mostrarMateriais);
+  document.getElementById('historicoMateriais').addEventListener('click', consultarHistoricoMateriais);
 
   document.getElementById('sair').addEventListener('click', async () => {
     await supabase.auth.signOut();
@@ -363,6 +365,120 @@ plantoesMateriais.forEach(plantao => {
   alert('Conferência de materiais salva com sucesso!');
   botaoSalvarMateriais.disabled = false;
   botaoSalvarMateriais.textContent = 'Salvar conferência';
+});
+      async function consultarHistoricoMateriais() {
+  const tela = document.querySelector('.login');
+
+  tela.innerHTML = `
+    <div class="logo">PJ</div>
+    <h1>Histórico de Conferências</h1>
+    <div class="subtitulo">Condomínio Pátio Jardins</div>
+    <div id="listaHistoricoMateriais">
+      Carregando histórico...
+    </div>
+    <button id="voltarHistoricoMateriais">
+      Voltar ao painel
+    </button>
+  `;
+
+  document.getElementById('voltarHistoricoMateriais')
+    .addEventListener('click', mostrarPainel);
+
+  const lista = document.getElementById('listaHistoricoMateriais');
+
+  const { data: conferencias, error } = await supabase
+    .from('Conferencia_materiais')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  if (error) {
+    lista.textContent = 'Erro ao carregar histórico: ' + error.message;
+    return;
+  }
+
+  if (!conferencias || conferencias.length === 0) {
+    lista.textContent = 'Nenhuma conferência registrada.';
+    return;
+  }
+
+  const idsConferencias = conferencias.map(item => item.id);
+const idsUsuarios = [...new Set(conferencias.map(item => item.usuario_id))];
+const idsPlantoes = [...new Set(conferencias.map(item => item.plantao_id))];
+
+const { data: materiaisHistorico, error: erroMateriais } = await supabase
+  .from('itens_conferencia_materiais')
+  .select('*')
+  .in('conferencia_id', idsConferencias);
+
+const { data: usuariosHistorico, error: erroUsuarios } = await supabase
+  .from('perfis')
+  .select('id, nome')
+  .in('id', idsUsuarios);
+
+const { data: plantoesHistorico, error: erroPlantoes } = await supabase
+  .from('plantoes')
+  .select('id, nome, numero')
+  .in('id', idsPlantoes);
+
+if (erroMateriais || erroUsuarios || erroPlantoes) {
+  lista.textContent = 'Erro ao carregar os detalhes do histórico.';
+  return;
+}
+
+const nomesUsuarios = new Map(
+  usuariosHistorico.map(item => [item.id, item.nome])
+);
+
+const nomesPlantoes = new Map(
+  plantoesHistorico.map(item => [
+    item.id,
+    item.nome || `Plantão ${item.numero}`
+  ])
+);
+lista.innerHTML = '';
+conferencias.forEach(conferencia => {
+  const card = document.createElement('div');
+
+  card.style.cssText = `
+    background: #f1f5f9;
+    padding: 15px;
+    margin: 12px 0;
+    border-radius: 10px;
+    text-align: left;
+  `;
+
+  const titulo = document.createElement('strong');
+  titulo.textContent = 'Conferência de materiais';
+
+  const detalhes = document.createElement('p');
+  detalhes.textContent =
+    'Data: ' + new Date(conferencia.created_at).toLocaleString('pt-BR') +
+    '\nFuncionário: ' + (nomesUsuarios.get(conferencia.usuario_id) || 'Não identificado') +
+    '\nPlantão: ' + (nomesPlantoes.get(conferencia.plantao_id) || 'Não informado');
+
+  detalhes.style.whiteSpace = 'pre-line';
+
+  card.appendChild(titulo);
+  card.appendChild(detalhes);
+
+  const itensDaConferencia = materiaisHistorico.filter(
+    item => item.conferencia_id === conferencia.id
+  );
+
+  itensDaConferencia.forEach(item => {
+    const material = document.createElement('p');
+
+    material.textContent =
+      item.nome_material +
+      ' | Quantidade: ' + item.quantidade +
+      ' | Estado: ' + item.estado +
+      (item.observacao ? ' | Observação: ' + item.observacao : '');
+
+    card.appendChild(material);
+  });
+
+  lista.appendChild(card);
 });
     }
 async function consultarOcorrencias() {
