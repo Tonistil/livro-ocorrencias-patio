@@ -145,6 +145,9 @@ function mostrarPainel() {
     <button id="conferirMateriais">Conferir materiais</button>
     <button id="historicoMateriais">Histórico de conferências</button>
     <button onclick="alert('Módulo em construção')">Compartilhar informações</button>
+    <button id="administracaoUsuarios">
+  Administração de Usuários
+</button>
     <button id="sair">Sair do sistema</button>
   `;
 
@@ -152,12 +155,33 @@ function mostrarPainel() {
   document.getElementById('consultar').addEventListener('click', consultarOcorrencias);
   document.getElementById('conferirMateriais').addEventListener('click', mostrarMateriais);
   document.getElementById('historicoMateriais').addEventListener('click', consultarHistoricoMateriais);
-
+document.getElementById('administracaoUsuarios')
+  .addEventListener('click', mostrarAdministracaoUsuarios);
   document.getElementById('sair').addEventListener('click', async () => {
     await supabase.auth.signOut();
     location.reload();
   });
 }
+    async function mostrarAdministracaoUsuarios() {
+  const tela = document.querySelector('.login');
+
+  tela.innerHTML = `
+    <div class="logo">PJ</div>
+    <h1>Administração de Usuários</h1>
+    <div class="subtitulo">Condomínio Pátio Jardins</div>
+
+    <div id="conteudoAdministracaoUsuarios">
+      <p>Gerenciamento de funcionários e acessos.</p>
+    </div>
+
+    <button id="voltarAdministracaoUsuarios">
+      Voltar ao painel
+    </button>
+  `;
+
+  document.getElementById('voltarAdministracaoUsuarios')
+    .addEventListener('click', mostrarPainel);
+    }
     async function mostrarMateriais() {
   const tela = document.querySelector('.login');
 
