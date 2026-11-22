@@ -156,18 +156,23 @@ function mostrarPainel() {
     location.reload();
   });
 }
-    function mostrarMateriais() {
+    async function mostrarMateriais() {
   const tela = document.querySelector('.login');
 
   tela.innerHTML = `
     <div class="logo">PJ</div>
     <h1>Conferência de Materiais</h1>
     <div class="subtitulo">Condomínio Pátio Jardins</div>
-
+<div id="campoPlantaoMateriais">
+  <label>Selecione o plantão</label>
+  <select id="plantaoMateriais">
+    <option value="">Carregando plantões...</option>
+  </select>
+</div>
     <div id="listaMateriais"></div>
 
     <button id="voltarMateriais">Voltar ao painel</button>
-  `;
+  `;<button id="salvarMateriais">Salvar conferência</button>
         const materiais = [
     'Computador completo',
     'Porteiro eletrônico',
@@ -190,7 +195,59 @@ function mostrarPainel() {
   ];
 
   const lista = document.getElementById('listaMateriais');
+const campoPlantaoMateriais = document.getElementById('plantaoMateriais');
 
+const { data: usuarioAtual, error: erroUsuario } =
+  await supabase.auth.getUser();
+
+if (erroUsuario || !usuarioAtual.user) {
+  alert('Não foi possível identificar o funcionário.');
+  return;
+}
+
+const { data: perfilMateriais, error: erroPerfil } = await supabase
+  .from('perfis')
+  .select('id')
+  .eq('auth_user_id', usuarioAtual.user.id)
+  .eq('ativo', true)
+  .maybeSingle();
+
+if (erroPerfil || !perfilMateriais) {
+  alert('Não foi possível localizar o perfil do funcionário.');
+  return;
+}
+
+const { data: vinculosMateriais, error: erroVinculos } = await supabase
+  .from('plantao_usuarios')
+  .select('plantao_id')
+  .eq('usuario_id', perfilMateriais.id)
+  .eq('ativo', true);
+
+if (erroVinculos || !vinculosMateriais || vinculosMateriais.length === 0) {
+  alert('Nenhum plantão ativo vinculado ao funcionário.');
+  return;
+}
+
+const idsPlantoes = vinculosMateriais.map(item => item.plantao_id);
+
+const { data: plantoesMateriais, error: erroPlantoes } = await supabase
+  .from('plantoes')
+  .select('id, nome')
+  .eq('ativo', true)
+  .in('id', idsPlantoes);
+
+if (erroPlantoes) {
+  alert('Erro ao carregar plantões: ' + erroPlantoes.message);
+  return;
+}
+
+campoPlantaoMateriais.innerHTML =
+  '<option value="">Selecione o plantão</option>';
+
+plantoesMateriais.forEach(plantao => {
+  campoPlantaoMateriais.innerHTML +=
+    `<option value="${plantao.id}">${plantao.nome}</option>`;
+});
   materiais.forEach((material, indice) => {
     lista.innerHTML += `
       <div class="material-item">
@@ -230,7 +287,7 @@ function mostrarPainel() {
     mostrarPainel();
   });
     }
-  
+  document.getElementById('salvarMateriais').addEventListener('click', salvarConferenciaMateriais);
 async function consultarOcorrencias() {
   const tela = document.querySelector('.login');
 
