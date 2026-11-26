@@ -403,10 +403,11 @@ async function mostrarListaFuncionarios() {
   }
 
   const { data: perfil, error: erroPerfil } = await supabase
-    .from('perfis')
-    .select('funcao')
-    .eq('id', usuarioLogado.user.id)
-    .single();
+  .from('perfis')
+  .select('id, nome')
+  .eq('auth_user_id', usuarioAtual.user.id)
+  .eq('ativo', true)
+  .single();
 
   if (erroPerfil || !perfil) {
     selectCargo.innerHTML = '<option value="">Erro ao carregar cargos</option>';
@@ -566,7 +567,7 @@ if (erroUsuario || !usuarioAtual.user) {
 
 const { data: perfilMateriais, error: erroPerfil } = await supabase
   .from('perfis')
-  .select('id')
+  .select('id, nome')
   .eq('auth_user_id', usuarioAtual.user.id)
   .eq('ativo', true)
   .maybeSingle();
@@ -685,11 +686,12 @@ plantoesMateriais.forEach(plantao => {
   botaoSalvarMateriais.disabled = true;
   botaoSalvarMateriais.textContent = 'Salvando...';
 
-  const { data: conferencia, error: erroConferencia } = await supabase
+    const { data: conferencia, error: erroConferencia } = await supabase
     .from('Conferencia_materiais')
     .insert({
       plantao_id: plantao_id,
-      usuario_id: perfilMateriais.id
+      usuario_id: perfilMateriais.id,
+      nome_funcionario: perfilMateriais.nome
     })
     .select('id')
     .single();
@@ -849,29 +851,29 @@ function renderizarHistoricoMateriais() {
   lista.innerHTML = '';
 
   conferenciasFiltradas().forEach(conferencia => {
-  const card = document.createElement('div');
+    const card = document.createElement('div');
 
-  card.style.cssText = `
-    background: #f1f5f9;
-    padding: 15px;
-    margin: 12px 0;
-    border-radius: 10px;
-    text-align: left;
-  `;
+    card.style.cssText = `
+      background: #f1f5f9;
+      padding: 15px;
+      margin: 12px 0;
+      border-radius: 10px;
+      text-align: left;
+    `;
 
-  const titulo = document.createElement('strong');
-  titulo.textContent = 'Conferência de materiais';
+    const titulo = document.createElement('strong');
+    titulo.textContent = 'Conferência de materiais';
 
-  const detalhes = document.createElement('p');
-  detalhes.textContent =
-    'Data: ' + new Date(conferencia.created_at).toLocaleString('pt-BR') +
-    '\nFuncionário: ' + (nomesUsuarios.get(conferencia.usuario_id) || 'Não identificado') +
-    '\nPlantão: ' + (nomesPlantoes.get(conferencia.plantao_id) || 'Não informado');
+    const detalhes = document.createElement('p');
+    detalhes.textContent =
+      'Data: ' + new Date(conferencia.created_at).toLocaleString('pt-BR') +
+      '\nFuncionário: ' + (conferencia.nome_funcionario || nomesUsuarios.get(conferencia.usuario_id) || 'Não identificado') +
+      '\nPlantão: ' + (nomesPlantoes.get(conferencia.plantao_id) || 'Não informado');
 
-  detalhes.style.whiteSpace = 'pre-line';
+    detalhes.style.whiteSpace = 'pre-line';
 
-  card.appendChild(titulo);
-  card.appendChild(detalhes);
+    card.appendChild(titulo);
+    card.appendChild(detalhes);
 
   const itensDaConferencia = materiaisHistorico.filter(
     item => item.conferencia_id === conferencia.id
@@ -1266,6 +1268,7 @@ campoObservacao.addEventListener('input', programarSalvamentoRascunho);
       plantao_id: plantao_id,
       categoria_id: categoria_id,
       usuario_id: perfil.id,
+      nome_funcionario: perfil.nome,
       descricao: descricao,
       observacao: observacao,
       area: 'Portaria'
