@@ -292,12 +292,8 @@ async function mostrarListaFuncionarios() {
 
     <label>Cargo ou função</label>
     <select id="cargoNovoFuncionario">
-      <option value="porteiro">Porteiro</option>
-<option value="supervisor">Supervisor</option>
-<option value="sindico">Síndico</option>
-<option value="admin">Administrador</option>
-    </select>
-
+  <option value="">Carregando cargos...</option>
+</select>
     <label>Plantão fixo</label>
     <select id="plantaoNovoFuncionario">
       <option value="">Carregando plantões...</option>
@@ -310,6 +306,50 @@ async function mostrarListaFuncionarios() {
 (async () => {
   const selectPlantao = document.getElementById('plantaoNovoFuncionario');
 
+(async () => {
+  const selectCargo = document.getElementById('cargoNovoFuncionario');
+
+  const { data: usuarioLogado, error: erroLogin } =
+    await supabase.auth.getUser();
+
+  if (erroLogin || !usuarioLogado.user) {
+    selectCargo.innerHTML = '<option value="">Sessão inválida</option>';
+    alert('Não foi possível identificar o usuário conectado.');
+    return;
+  }
+
+  const { data: perfil, error: erroPerfil } = await supabase
+    .from('perfis')
+    .select('funcao')
+    .eq('id', usuarioLogado.user.id)
+    .single();
+
+  if (erroPerfil || !perfil) {
+    selectCargo.innerHTML = '<option value="">Erro ao carregar cargos</option>';
+    alert('Não foi possível identificar seu cargo.');
+    return;
+  }
+
+  selectCargo.innerHTML = '';
+
+  if (perfil.funcao === 'supervisor') {
+    selectCargo.innerHTML = '<option value="porteiro">Porteiro</option>';
+  } else if (
+    perfil.funcao === 'admin' ||
+    perfil.funcao === 'sindico'
+  ) {
+    selectCargo.innerHTML = `
+      <option value="porteiro">Porteiro</option>
+      <option value="supervisor">Supervisor</option>
+      <option value="sindico">Síndico</option>
+      <option value="admin">Administrador</option>
+    `;
+  } else {
+    selectCargo.innerHTML = '<option value="">Sem autorização</option>';
+    alert('Seu cargo não possui autorização para cadastrar funcionários.');
+  }
+})();
+    
   const { data, error } = await supabase.functions.invoke(
     'listar-plantoes-cadastro'
   );
