@@ -340,9 +340,9 @@ async function mostrarListaFuncionarios() {
     botao.disabled = true;
 
     const { data, error } = await supabase.functions.invoke(
-      'gerenciar-funcionario',
-      { body: corpo }
-    );
+  'gerenciar-funcionario-',
+  { body: corpo }
+);
 
     if (error || !data?.sucesso) {
       alert(data?.mensagem || error?.message || 'Não foi possível realizar a operação.');
