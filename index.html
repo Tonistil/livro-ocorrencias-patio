@@ -198,6 +198,7 @@ async function mostrarAdministracaoUsuarios() {
     .addEventListener('click', mostrarPainel);
 }
 
+
 async function mostrarListaFuncionarios() {
   const tela = document.querySelector('.login');
 
@@ -210,36 +211,13 @@ async function mostrarListaFuncionarios() {
       Carregando funcionários...
     </div>
 
-    <button id="voltarListaFuncionarios">
-      Voltar
-    </button>
+    <button id="voltarListaFuncionarios">Voltar</button>
   `;
 
   document.getElementById('voltarListaFuncionarios')
     .addEventListener('click', mostrarAdministracaoUsuarios);
 
   const lista = document.getElementById('listaFuncionarios');
-
-  const { data, error } = await supabase.functions.invoke(
-    'listar-funcionarios-administracao'
-  );
-
-  if (error) {
-    lista.innerHTML = '<p>Erro ao carregar funcionários.</p>';
-    alert('Erro: ' + error.message);
-    return;
-  }
-
-  if (!data || !data.sucesso) {
-    lista.innerHTML = '<p>Não foi possível carregar a lista.</p>';
-    alert(data?.mensagem || 'Acesso não autorizado.');
-    return;
-  }
-
-  if (!data.funcionarios || data.funcionarios.length === 0) {
-    lista.innerHTML = '<p>Nenhum funcionário encontrado.</p>';
-    return;
-  }
 
   const escapar = (valor) => String(valor ?? '').replace(
     /[&<>"']/g,
@@ -252,26 +230,132 @@ async function mostrarListaFuncionarios() {
     })[caractere]
   );
 
-  lista.innerHTML = data.funcionarios.map(funcionario => {
-    const plantoes = (funcionario.plantoes || [])
-      .map(p => escapar(p.nome) +
-        (p.vinculo_ativo ? ' (ativo)' : ' (vínculo inativo)'))
-      .join(', ');
+  const carregarFuncionarios = async () => {
+    lista.innerHTML = 'Carregando funcionários...';
 
-    return `
-      <div class="item-funcionario">
-        <hr>
-        <p><strong>Nome:</strong> ${escapar(funcionario.nome)}</p>
-        <p><strong>Matrícula:</strong> ${escapar(funcionario.matricula)}</p>
-        <p><strong>Função:</strong> ${escapar(funcionario.funcao)}</p>
-        <p><strong>Plantão:</strong> ${plantoes || 'Não informado'}</p>
-        <p><strong>Situação:</strong>
-          ${funcionario.ativo ? 'Ativo' : 'Inativo'}
-        </p>
-      </div>
-    `;
-  }).join('');
+    const { data, error } = await supabase.functions.invoke(
+      'listar-funcionarios-administracao'
+    );
+
+    if (error || !data || !data.sucesso) {
+      lista.innerHTML = '<p>Erro ao carregar funcionários.</p>';
+      alert(data?.mensagem || error?.message || 'Não foi possível carregar a lista.');
+      return;
     }
+
+    if (!data.funcionarios || data.funcionarios.length === 0) {
+      lista.innerHTML = '<p>Nenhum funcionário encontrado.</p>';
+      return;
+    }
+
+    lista.innerHTML = data.funcionarios.map(funcionario => {
+      const plantoes = (funcionario.plantoes || [])
+        .map(p => escapar(p.nome) +
+          (p.vinculo_ativo ? ' (ativo)' : ' (vínculo inativo)'))
+        .join(', ');
+
+      const botoes = funcionario.ativo
+        ? `
+          <button data-acao="editar" data-id="${escapar(funcionario.id)}">
+            Editar
+          </button>
+          <button data-acao="bloquear" data-id="${escapar(funcionario.id)}">
+            Bloquear
+          </button>
+          <button data-acao="excluir" data-id="${escapar(funcionario.id)}">
+            Excluir
+          </button>
+        `
+        : `
+          <button data-acao="reativar" data-id="${escapar(funcionario.id)}">
+            Reativar
+          </button>
+        `;
+
+      return `
+        <div class="item-funcionario">
+          <hr>
+          <p><strong>Nome:</strong> ${escapar(funcionario.nome)}</p>
+          <p><strong>Matrícula:</strong> ${escapar(funcionario.matricula)}</p>
+          <p><strong>Função:</strong> ${escapar(funcionario.funcao)}</p>
+          <p><strong>Plantão:</strong> ${plantoes || 'Não informado'}</p>
+          <p><strong>Situação:</strong>
+            ${funcionario.ativo ? 'Ativo' : 'Inativo'}
+          </p>
+          ${botoes}
+        </div>
+      `;
+    }).join('');
+  };
+
+  await carregarFuncionarios();
+
+  lista.addEventListener('click', async (evento) => {
+    const botao = evento.target.closest('button[data-acao]');
+
+    if (!botao) return;
+
+    const acao = botao.dataset.acao;
+    const usuario_id = botao.dataset.id;
+
+    const funcionario = await (async () => {
+      const { data } = await supabase.functions.invoke(
+        'listar-funcionarios-administracao'
+      );
+
+      return data?.funcionarios?.find(f => f.id === usuario_id);
+    })();
+
+    if (!funcionario) {
+      alert('Funcionário não encontrado.');
+      return;
+    }
+
+    let corpo = { acao, usuario_id };
+
+    if (acao === 'editar') {
+      const nome = prompt('Nome completo:', funcionario.nome);
+      if (nome === null) return;
+
+      const matricula = prompt('Matrícula:', funcionario.matricula);
+      if (matricula === null) return;
+
+      corpo.nome = nome.trim();
+      corpo.matricula = matricula.trim();
+
+      if (!corpo.nome || !corpo.matricula) {
+        alert('Preencha o nome e a matrícula.');
+        return;
+      }
+    } else {
+      const mensagens = {
+        bloquear: 'Deseja bloquear este funcionário?',
+        reativar: 'Deseja reativar este funcionário?',
+        excluir: 'Deseja excluir este funcionário? O acesso será desativado, mas o histórico será preservado.'
+      };
+
+      if (!confirm(mensagens[acao])) return;
+    }
+
+    botao.disabled = true;
+
+    const { data, error } = await supabase.functions.invoke(
+      'gerenciar-funcionario',
+      { body: corpo }
+    );
+
+    if (error || !data?.sucesso) {
+      alert(data?.mensagem || error?.message || 'Não foi possível realizar a operação.');
+      botao.disabled = false;
+      return;
+    }
+
+    alert(data.mensagem || 'Operação realizada com sucesso.');
+
+    await carregarFuncionarios();
+  });
+}
+
     
     function mostrarFormularioCadastroFuncionario() {
   const tela = document.querySelector('.login');
