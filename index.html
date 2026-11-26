@@ -1053,7 +1053,7 @@ const nomesUsuarios = new Map(
             second: '2-digit'
           })
         : 'Não informada') +
-      '\nFuncionário: ' + (nomesUsuarios.get(item.usuario_id) || 'Não identificado') +
+    '\nFuncionário: ' + (item.nome_funcionario || nomesUsuarios.get(item.usuario_id) || 'Não identificado') +
       '\nPlantão: ' + (nomesPlantoes.get(item.plantao_id) || 'Não informado') +
 '\nCategoria: ' + (nomesCategorias.get(item.categoria_id) || 'Não informada') +
       '\nDescrição: ' + (item.descricao || '') +
