@@ -162,7 +162,8 @@ document.getElementById('administracaoUsuarios')
     location.reload();
   });
 }
-    async function mostrarAdministracaoUsuarios() {
+    
+async function mostrarAdministracaoUsuarios() {
   const tela = document.querySelector('.login');
 
   tela.innerHTML = `
@@ -171,22 +172,107 @@ document.getElementById('administracaoUsuarios')
     <div class="subtitulo">Condomínio Pátio Jardins</div>
 
     <div id="conteudoAdministracaoUsuarios">
-  <p>Gerenciamento de funcionários e acessos.</p>
+      <p>Gerenciamento de funcionários e acessos.</p>
 
-  <button id="cadastrarFuncionario">
-    Cadastrar funcionário
-  </button>
-</div>
+      <button id="cadastrarFuncionario">
+        Cadastrar funcionário
+      </button>
+
+      <button id="listarFuncionarios">
+        Consultar funcionários
+      </button>
+    </div>
 
     <button id="voltarAdministracaoUsuarios">
       Voltar ao painel
     </button>
   `;
-document.getElementById('cadastrarFuncionario')
-  .addEventListener('click', mostrarFormularioCadastroFuncionario);
+
+  document.getElementById('cadastrarFuncionario')
+    .addEventListener('click', mostrarFormularioCadastroFuncionario);
+
+  document.getElementById('listarFuncionarios')
+    .addEventListener('click', mostrarListaFuncionarios);
+
   document.getElementById('voltarAdministracaoUsuarios')
     .addEventListener('click', mostrarPainel);
+}
+
+async function mostrarListaFuncionarios() {
+  const tela = document.querySelector('.login');
+
+  tela.innerHTML = `
+    <div class="logo">PJ</div>
+    <h1>Funcionários</h1>
+    <div class="subtitulo">Condomínio Pátio Jardins</div>
+
+    <div id="listaFuncionarios">
+      Carregando funcionários...
+    </div>
+
+    <button id="voltarListaFuncionarios">
+      Voltar
+    </button>
+  `;
+
+  document.getElementById('voltarListaFuncionarios')
+    .addEventListener('click', mostrarAdministracaoUsuarios);
+
+  const lista = document.getElementById('listaFuncionarios');
+
+  const { data, error } = await supabase.functions.invoke(
+    'listar-funcionarios-administracao'
+  );
+
+  if (error) {
+    lista.innerHTML = '<p>Erro ao carregar funcionários.</p>';
+    alert('Erro: ' + error.message);
+    return;
+  }
+
+  if (!data || !data.sucesso) {
+    lista.innerHTML = '<p>Não foi possível carregar a lista.</p>';
+    alert(data?.mensagem || 'Acesso não autorizado.');
+    return;
+  }
+
+  if (!data.funcionarios || data.funcionarios.length === 0) {
+    lista.innerHTML = '<p>Nenhum funcionário encontrado.</p>';
+    return;
+  }
+
+  const escapar = (valor) => String(valor ?? '').replace(
+    /[&<>"']/g,
+    caractere => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[caractere]
+  );
+
+  lista.innerHTML = data.funcionarios.map(funcionario => {
+    const plantoes = (funcionario.plantoes || [])
+      .map(p => escapar(p.nome) +
+        (p.vinculo_ativo ? ' (ativo)' : ' (vínculo inativo)'))
+      .join(', ');
+
+    return `
+      <div class="item-funcionario">
+        <hr>
+        <p><strong>Nome:</strong> ${escapar(funcionario.nome)}</p>
+        <p><strong>Matrícula:</strong> ${escapar(funcionario.matricula)}</p>
+        <p><strong>Função:</strong> ${escapar(funcionario.funcao)}</p>
+        <p><strong>Plantão:</strong> ${plantoes || 'Não informado'}</p>
+        <p><strong>Situação:</strong>
+          ${funcionario.ativo ? 'Ativo' : 'Inativo'}
+        </p>
+      </div>
+    `;
+  }).join('');
     }
+    
     function mostrarFormularioCadastroFuncionario() {
   const tela = document.querySelector('.login');
 
