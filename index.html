@@ -1137,7 +1137,7 @@ if (erroUsuario || !usuarioAtual.user) {
 
 const { data: perfil, error: erroPerfil } = await supabase
   .from('perfis')
-  ..select('id, nome')
+  .select('id, nome')
   .eq('auth_user_id', usuarioAtual.user.id)
   .eq('ativo', true)
   .single();
