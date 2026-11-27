@@ -916,6 +916,10 @@ async function consultarOcorrencias() {
 <select id="filtroPlantao">
   <option value="">Todos os plantões</option>
 </select>
+<label for="filtroFuncionario">Filtrar por funcionário:</label>
+<select id="filtroFuncionario">
+  <option value="">Todos os funcionários</option>
+</select>
 <label for="filtroCategoria">Filtrar por categoria:</label>
 
 <select id="filtroCategoria">
@@ -1015,13 +1019,6 @@ const nomesUsuarios = new Map(
   usuarios.map(item => [item.id, item.nome])
 );
       
-
-
-  function renderizarOcorrencias() {
-  lista.innerHTML = '';
-
-  const plantaoSelecionado = filtroPlantao.value;
-  const categoriaSelecionada = filtroCategoria.value;
 
 
 async function consultarOcorrencias() {
